@@ -45,22 +45,23 @@ Think of Azure Virtual WAN as a network of airports ✈️:
 
 ## 🏗️ Overall Architecture Preview
 ```mermaid
-flowchart LR
-  VWAN[Azure Virtual WAN (Global Backbone)]
-  HUB[Virtual Hub (East US)]
-  A[Dept A – Strict Security]
-  B[Dept B – Balanced]
-  C[Dept C – Performance]
-  FW[Azure Firewall / NVA]
+sequenceDiagram
+    participant User as You (Olumide)
+    participant CLI as Azure CLI / Portal
+    participant RG as Resource Group
+    participant VWAN as Virtual WAN (Global Backbone)
+    participant HUB as Virtual Hub (East US)
+    participant FW as Azure Firewall / NVA
+    participant Depts as Depts A/B/C
 
-  VWAN --> HUB --> FW
-  HUB <--> A
-  HUB <--> B
-  HUB <--> C
-  A -->|All traffic via FW| FW
-  B -->|Internet via FW| FW
-  B -->|Private Direct| HUB
-  C -->|Private Direct| HUB
+    User->>CLI: Execute deployment commands
+    CLI->>RG: Create clab-dev-rg (resource group)
+    CLI->>VWAN: Deploy Azure Virtual WAN
+    VWAN->>HUB: Add East US Virtual Hub
+    HUB->>FW: Attach Firewall / NVA (Secured Hub)
+    HUB->>Depts: Connect Depts A/B/C VNets
+    Depts-->>FW: Route Internet via Firewall
+    Depts-->>HUB: Route Private traffic directly
 ```
 
 ---
