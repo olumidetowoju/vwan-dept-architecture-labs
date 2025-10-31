@@ -74,11 +74,14 @@ Dept C – Performance	Low Latency	via Firewall	Direct
 
 🧭 Diagram – Current State
 ```mermaid
-Copy code
-flowchart TD
-  CLI[Azure CLI / Portal] --> RG[Resource Group: clab-dev-rg]
-  RG -.-> VWAN[Virtual WAN (coming Day 2)]
-  note right of RG: Only Resource Group exists now → Free
+sequenceDiagram
+    participant CLI as Azure CLI / Portal
+    participant Azure as Azure Subscription
+    participant RG as Resource Group (clab-dev-rg)
+
+    CLI->>Azure: Create resource group (az group create)
+    Azure->>RG: provisioningState = Succeeded
+    Note over RG: End of Day 1:\nOnly Resource Group exists\n(No cost incurred)
 ```
 
 ---
