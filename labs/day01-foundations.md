@@ -21,13 +21,18 @@ Imagine it as a **world of airports** where:
 
 ## 🏗️ High-Level Diagram
 ```mermaid
-flowchart LR
-  subgraph Azure
-    VWAN[Azure Virtual WAN]
-    HUB[Virtual Hub (East US)]
-  end
-  VWAN --> HUB
-  note right of HUB: You will add Depts A/B/C later (Day 2)
+sequenceDiagram
+    participant User as You (Olumide)
+    participant CLI as Azure CLI / Portal
+    participant Azure as Azure Resource Manager
+    participant RG as Resource Group (clab-dev-rg)
+
+    User->>CLI: Run "az login" and verify subscription
+    CLI->>Azure: Authenticate and fetch subscription details
+    CLI->>Azure: Register required providers<br>(Network, Firewall, VirtualWAN)
+    CLI->>RG: Create new Resource Group (clab-dev-rg)
+    RG-->>User: Confirmation → provisioningState = Succeeded
+    Note over RG: Only the Resource Group exists after Day 1<br>All other components come in Day 2+
 ```
 
 ---
