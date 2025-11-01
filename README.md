@@ -19,7 +19,7 @@ All content is written in **textbook + hands-on lab style** with **Mermaid diagr
 | Day | Topic | Lab File |
 |:---:|:------|:---------|
 | 1 | [Foundations & Prereqs](labs/day01-foundations.md) | Environment setup & mental model |
-| 2 | Deploy Virtual WAN & Core Hub | *(next)* |
+| 2 | [Deploy Virtual WAN & Core Hub](labs/day02-vwan-core-hub.md) | Deploy Virtual WAN, Hub, and Dept VNets |
 | 3 | Secure Hub with Azure Firewall Manager | *(next)* |
 | 4 | Routing Intent & Dept Profiles | *(next)* |
 | 5 | Branch & Remote Connectivity | *(later)* |
