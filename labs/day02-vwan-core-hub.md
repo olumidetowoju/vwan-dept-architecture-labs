@@ -47,31 +47,6 @@ sequenceDiagram
 
 ---
 
-## ⚙️ Variables
-These variables keep naming consistent across all labs:
-
-```bash
-LOCATION=eastus
-PREFIX=clab
-ENV=dev
-SUFFIX=001
-RG=${PREFIX}-${ENV}-rg
-VWAN=${PREFIX}-${ENV}-vwan
-VHUB=${PREFIX}-${ENV}-hub-${LOCATION}
-
-# Department VNets
-VNETA=${PREFIX}-${ENV}-vnet-deptA
-VNETB=${PREFIX}-${ENV}-vnet-deptB
-VNETC=${PREFIX}-${ENV}-vnet-deptC
-ADDR_VNETA=10.10.0.0/16
-ADDR_VNETB=10.20.0.0/16
-ADDR_VNETC=10.30.0.0/16
-Confirm variables:
-
-bash
-Copy code
-echo $RG $VWAN $VHUB
-
 🧱 Step 1 – Create Resource Group
 bash
 Copy code
