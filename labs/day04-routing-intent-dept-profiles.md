@@ -30,24 +30,30 @@ Background on routing intent & policies in Virtual WAN: overview/how-to articles
 sequenceDiagram
     participant A as Dept A (Strict)
     participant B as Dept B (Balanced)
-    participant C as Dept C (Perf)
-    participant HUB as Virtual Hub (Routing Intent)
+    participant C as Dept C (Performance)
+    participant HUB as vHub
+    participant RTa as rt-deptA
+    participant RTb as rt-deptB (empty)
+    participant RTc as rt-deptC (empty)
     participant FW as Azure Firewall
 
     A->>HUB: Internet egress
-    HUB->>FW: InternetTraffic policy → Firewall
+    HUB->>FW: enableInternetSecurity = true
     A->>HUB: Private to B/C
-    HUB->>FW: PrivateTraffic policy (or rt-deptA) → Firewall
+    HUB->>RTa: associated_route_table = rt-deptA
+    RTa->>FW: 10.20/16, 10.30/16 → nextHop=Firewall
 
     B->>HUB: Internet egress
-    HUB->>FW: InternetTraffic policy → Firewall
+    HUB->>FW: enableInternetSecurity = true
     B->>HUB: Private to A/C
-    HUB-->>B: Direct (rt-deptB association)
+    HUB-->>RTb: associated_route_table = rt-deptB (empty → direct)
+    RTb-->>B: Direct
 
     C->>HUB: Internet egress
-    HUB-->>C: Direct (internetSecurity=false)
+    HUB-->>C: enableInternetSecurity = false (direct)
     C->>HUB: Private to A/B
-    HUB-->>C: Direct (rt-deptC association)
+    HUB-->>RTc: associated_route_table = rt-deptC (empty → direct)
+    RTc-->>C: Direct
 ```
 
 ---
@@ -201,4 +207,25 @@ Dept B (Balanced): Internet via FW, Private direct	✅
 Dept C (Performance): Internet direct, Private direct	✅
 Validation outputs as expected	✅
 
+## ✅ Day 4 – Final Validation Snapshot
 
+```bash
+# Internet flags + associated tables (expect A→rt-deptA, B→rt-deptB, C→rt-deptC)
+az network vhub connection list -g $RG --vhub-name $VHUB \
+  --query "[].{name:name, internet:enableInternetSecurity, assocRT:routingConfiguration.associated_route_table.id}" -o table
+
+# Route tables in hub
+az network vhub route-table list -g $RG --vhub-name $VHUB -o table
+
+# Dept A table contents (expect exactly two CIDRs)
+az network vhub route-table show -g $RG --vhub-name $VHUB -n rt-deptA \
+  --query "routes[].{name:name,dests:destinations}" -o table
+
+🧰 Gotchas & Fixes (vHub Route Table v3)
+
+Remove routes by index (not by name):
+az network vhub route-table route remove ... --index <n>
+
+If you get DuplicateDestinations or AnotherOperationInProgress, list routes, remove highest index first, or recreate the table and re-associate.
+
+New schema: Internet flag is enableInternetSecurity (top-level), and route-table paths are snake_case (e.g., routingConfiguration.associated_route_table.id).
