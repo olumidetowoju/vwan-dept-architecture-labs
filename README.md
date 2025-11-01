@@ -20,7 +20,7 @@ All content is written in **textbook + hands-on lab style** with **Mermaid diagr
 |:---:|:------|:---------|
 | 1 | [Foundations & Prereqs](labs/day01-foundations.md) | Environment setup & mental model |
 | 2 | [Deploy Virtual WAN & Core Hub](labs/day02-vwan-core-hub.md) | Deploy Virtual WAN, Hub, and Dept VNets |
-| 3 | Secure Hub with Azure Firewall Manager | *(next)* |
+| 3 | [Secured Virtual Hub (Azure Firewall Manager)](labs/day03-secured-virtual-hub.md) | Deploy Azure Firewall & convert Hub to Secured mode |
 | 4 | Routing Intent & Dept Profiles | *(next)* |
 | 5 | Branch & Remote Connectivity | *(later)* |
 | 6 | Observability & Telemetry | *(later)* |
