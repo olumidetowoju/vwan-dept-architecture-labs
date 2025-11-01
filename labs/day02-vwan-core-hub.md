@@ -7,6 +7,31 @@
 
 ---
 
+🧭 Sequence (What happened today)
+```mermaid
+sequenceDiagram
+    participant You as You (Olumide)
+    participant CLI as Azure CLI
+    participant RG as Resource Group (clab-dev-rg)
+    participant VWAN as Virtual WAN (Standard)
+    participant HUB as Virtual Hub (East US)
+    participant A as VNet Dept A
+    participant B as VNet Dept B
+    participant C as VNet Dept C
+
+    You->>CLI: Set variables & create RG
+    CLI->>VWAN: Create Virtual WAN
+    VWAN->>HUB: Create Virtual Hub (no gateways)
+    CLI->>A: Create VNet A (10.10.0.0/16)
+    CLI->>B: Create VNet B (10.20.0.0/16)
+    CLI->>C: Create VNet C (10.30.0.0/16)
+    A-->>HUB: Connect hub-vnet (conn-A)
+    B-->>HUB: Connect hub-vnet (conn-B)
+    C-->>HUB: Connect hub-vnet (conn-C)
+```
+
+---
+
 ## ⚙️ Variables
 ```bash
 LOCATION=eastus
@@ -59,31 +84,6 @@ Copy code
 az network vhub show -g $RG -n $VHUB -o table
 az network vhub connection list -g $RG --vhub-name $VHUB -o table
 az network vnet list -g $RG -o table
-
-🧭 Sequence (What happened today)
-```mermaid
-sequenceDiagram
-    participant You as You (Olumide)
-    participant CLI as Azure CLI
-    participant RG as Resource Group (clab-dev-rg)
-    participant VWAN as Virtual WAN (Standard)
-    participant HUB as Virtual Hub (East US)
-    participant A as VNet Dept A
-    participant B as VNet Dept B
-    participant C as VNet Dept C
-
-    You->>CLI: Set variables & create RG
-    CLI->>VWAN: Create Virtual WAN
-    VWAN->>HUB: Create Virtual Hub (no gateways)
-    CLI->>A: Create VNet A (10.10.0.0/16)
-    CLI->>B: Create VNet B (10.20.0.0/16)
-    CLI->>C: Create VNet C (10.30.0.0/16)
-    A-->>HUB: Connect hub-vnet (conn-A)
-    B-->>HUB: Connect hub-vnet (conn-B)
-    C-->>HUB: Connect hub-vnet (conn-C)
-```
-
----
 
 🧹 Cleanup (optional)
 az group delete -n $RG --yes --no-wait
