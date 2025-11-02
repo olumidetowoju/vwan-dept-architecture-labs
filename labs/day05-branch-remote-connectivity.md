@@ -220,9 +220,21 @@ az network vpn-gateway connection list -g $RG -o table
 az network vpn-server-config list -g $RG -o table
 az network p2s-vpn-gateway list -g $RG -o table
 
-🧹 Cleanup (Stop All Costs)
+🧹 Cleanup (Optional — Safe Free-Tier State)
 
-Run only if you used Track B.
+When no branch device exists yet, remove high-cost items so you keep zero
+billing footprint.
+
+# ⚠️ Run only if you're done with Day 5 testing
+az network vpn-gateway delete -g $RG -n $S2S_GW -y
+az network vpn-site delete -g $RG -n $SITE1_NAME -y
+az network vpn-gateway connection delete -g $RG -n $S2S_CONN -y
+
+
+Confirm deletion:
+
+az network vpn-gateway list -g $RG -o table
+az network vpn-site list -g $RG -o table
 
 # P2S
 az network p2s-vpn-gateway delete -g $RG -n $P2S_GW -y
@@ -256,3 +268,41 @@ P2S auth: For cert-based auth, your root cert must be in the gateway config and 
  I created a VPN Server Config (+ optionally a vHub P2S Gateway and downloaded profile)
 
  I ran Cleanup if I deployed gateways
+
+🧭 Concept Recap (Analogies)
+
+Think of the Virtual WAN hub as an airport, and the vpnSite as a
+foreign terminal waiting for a flight connection.
+Azure has finished building the runway (vpnGateway + connection), but since no
+plane (branch device) has landed, status = “NotConnected”.
+Once a branch router authenticates with the same PSK, the link comes alive and
+routes flow between “cities” (Dept VNets ↔ Branch LAN).
+
+# ✅ Day 5 – Validation & Cleanup (Branch Connectivity)
+
+Now that the Azure side of the Site-to-Site VPN is provisioned, this section
+verifies connectivity objects and performs cleanup to prevent any cost leaks
+until a real branch device is attached.
+
+---
+
+## 🔍 Validation Checklist
+
+| Item | Validation Command | Expected |
+|------|--------------------|-----------|
+| VPN Gateway State | `az network vpn-gateway show -g $RG -n $S2S_GW --query properties.provisioningState -o tsv` | **Succeeded** |
+| Connection Object | `az network vpn-gateway connection show -g $RG --gateway-name $S2S_GW -n $S2S_CONN --query name -o tsv` | **Exists** |
+| Site Link Binding | `az network vpn-site show -g $RG -n $SITE1_NAME --query "vpnSiteLinks[].name" -o tsv` | **clab-dev-site-branch1** |
+| Connection Status | `az rest --method get --url "$CONN_URL" | python3 -c "import json,sys; d=json.load(sys.stdin); L=(d.get('properties',{}).get('vpnLinkConnections') or []); print('\n'.join([f\"{x.get('name')}\t{(x.get('properties') or {}).get('connectionStatus')}\" for x in L]))"` | **NotConnected** (expected) |
+
+### 📊 Quick Summary (Compact Python View)
+```bash
+az rest --method get --url "$CONN_URL" \
+| python3 -c "import json,sys; data=json.load(sys.stdin); p=data.get('properties',{}); links=p.get('vpnLinkConnections') or []; print(json.dumps({'state':p.get('provisioningState'),'linkCount':len(links),'links':[{'name':l.get('name'),'status':(l.get('properties') or {}).get('connectionStatus'),'siteLinkId':(l.get('properties') or {}).get('vpnSiteLink',{}).get('id')} for l in links]}, indent=2))"
+
+🧩 Next Up — Day 6 Monitoring & Observability
+
+We’ll enable metrics, flow logs, and Azure Monitor insights to visualize WAN
+traffic paths across departments.
+
+
