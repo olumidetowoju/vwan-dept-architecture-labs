@@ -27,20 +27,22 @@ By the end of this lab you will:
 ---
 🖼️ Diagram – Monitoring Flow
 ```mermaid
-flowchart LR
-    subgraph Azure_Cloud
-    VWAN[Virtual WAN Hub]
-    LA[Log Analytics]
-    CM[Connection Monitor]
-    FL[Flow Logs v2]
-    end
-    DeptA[(Dept A VNet)] --> VWAN
-    DeptB[(Dept B VNet)] --> VWAN
-    VWAN --> LA
-    VWAN --> CM
-    DeptA --> FL
-    DeptB --> FL
-    LA -->|Insights & Dashboards| User[You (Olumide)]
+sequenceDiagram
+    participant DeptA as Dept A VNet
+    participant DeptB as Dept B VNet
+    participant Hub as Virtual WAN Hub
+    participant LA as Log Analytics Workspace
+    participant CM as Connection Monitor
+    participant User as You (Olumide)
+
+    DeptA->>Hub: Send metrics, flow logs (JSON v2)
+    DeptB->>Hub: Send metrics, flow logs (JSON v2)
+    Hub->>LA: Push diagnostic & telemetry streams
+    Hub->>CM: Trigger reachability tests (TCP 443)
+    CM-->>Hub: Return status = Connected/Failed
+    LA-->>User: Aggregate data into Insights & Workbooks
+    User->>LA: Query AzureDiagnostics in Kusto
+    User-->>Hub: Adjust routing or NSG based on metrics
 ```
 
 ---
