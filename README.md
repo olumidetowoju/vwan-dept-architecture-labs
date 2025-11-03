@@ -23,7 +23,7 @@ All content is written in **textbook + hands-on lab style** with **Mermaid diagr
 | 3 | [Secured Virtual Hub (Azure Firewall Manager)](labs/day03-secured-virtual-hub.md) | Deploy Azure Firewall & convert Hub to Secured mode |
 | 4 | [Routing Intent & Dept Profiles](labs/day04-routing-intent-dept-profiles.md) | Hub routing intent + per-dept controls |
 | 5 | [Branch / Remote Connectivity (S2S + P2S)](labs/day05-branch-remote-connectivity.md) | Extend vWAN with Site-to-Site (VPN Site) and Point-to-Site (P2S) for remote users |
-| 6 | [Monitoring & Observability](labs/day06-monitoring-observability.md) | vWAN Insights, Flow Logs & Connection Monitor |
+| 6 | [Monitoring & Observability](labs/day06-monitoring-observability.md) | AzureMetrics validation, vWAN & Firewall telemetry |
 | 7 | Multi-Region DR | *(later)* |
 | 8 | NVAs & 3rd-Party Firewalls | *(later)* |
 | 9 | Guardrails & Governance | *(later)* |
