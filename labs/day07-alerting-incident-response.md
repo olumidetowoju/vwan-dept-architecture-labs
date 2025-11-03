@@ -16,7 +16,8 @@ PREFIX=clab
 ENV=dev
 LOCATION=eastus
 SUB_ID=$(az account show --query id -o tsv)
-Step 2 — Create an Action Group
+
+### **Step 2 — Create an Action Group
 This action group will notify your email or SMS when alerts trigger.
 
 az monitor action-group create \
@@ -24,7 +25,8 @@ az monitor action-group create \
   -n ${PREFIX}-${ENV}-alerts \
   --action email AdminAlerts you@example.com \
   --short-name AGAlerts
-Step 3 — Create example metric alert (Firewall metrics)
+
+### **Step 3 — Create example metric alert (Firewall metrics)
 
 az monitor metrics alert create \
   -n ${PREFIX}-${ENV}-fw-cpu-alert \
@@ -33,7 +35,8 @@ az monitor metrics alert create \
   --condition "avg CpuUtilization > 75" \
   --description "High Azure Firewall CPU utilization" \
   --action-group ${PREFIX}-${ENV}-alerts
-Step 4 — Create example log alert (from Log Analytics workspace)
+
+### **Step 4 — Create example log alert (from Log Analytics workspace)
 
 az monitor scheduled-query create \
   -n ${PREFIX}-${ENV}-vwan-conn-failure \
@@ -48,7 +51,8 @@ AzureDiagnostics
 | where properties_s contains 'ConnectionFailed'
 " \
   --window-size 5m --evaluation-frequency 5m
-Step 5 — (Optional) Integrate with Microsoft Sentinel
+
+### **Step 5 — (Optional) Integrate with Microsoft Sentinel
 If your environment uses Sentinel, link your workspace and create an analytic rule template.
 
 az sentinel alert-rule create \
@@ -56,6 +60,7 @@ az sentinel alert-rule create \
   --workspace-name $LA_NAME \
   --rule-template-id "a6b3e79d-6e2a-4b10-9b2c-6d8b93b715f2" \
   --enabled true
+
 7.3 Validation
 
 # List all alert rules
@@ -64,6 +69,7 @@ az monitor scheduled-query list -g $RG -o table
 
 # Simulate a trigger (optional)
 az monitor metrics alert test -n ${PREFIX}-${ENV}-fw-cpu-alert -g $RG
+
 7.4 Cleanup
 
 az monitor metrics alert delete -n ${PREFIX}-${ENV}-fw-cpu-alert -g $RG -y
