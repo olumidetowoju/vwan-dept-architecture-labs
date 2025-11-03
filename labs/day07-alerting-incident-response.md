@@ -10,7 +10,6 @@ You will validate that critical network or security events trigger notifications
 ## 7.2 Lab Steps
 
 ### **Step 1 — Define environment variables**
-```bash
 RG=clab-dev-rg
 LA_NAME=clab-dev-logs
 PREFIX=clab
@@ -20,16 +19,13 @@ SUB_ID=$(az account show --query id -o tsv)
 Step 2 — Create an Action Group
 This action group will notify your email or SMS when alerts trigger.
 
-bash
-Copy code
 az monitor action-group create \
   -g $RG \
   -n ${PREFIX}-${ENV}-alerts \
   --action email AdminAlerts you@example.com \
   --short-name AGAlerts
 Step 3 — Create example metric alert (Firewall metrics)
-bash
-Copy code
+
 az monitor metrics alert create \
   -n ${PREFIX}-${ENV}-fw-cpu-alert \
   -g $RG \
@@ -38,8 +34,7 @@ az monitor metrics alert create \
   --description "High Azure Firewall CPU utilization" \
   --action-group ${PREFIX}-${ENV}-alerts
 Step 4 — Create example log alert (from Log Analytics workspace)
-bash
-Copy code
+
 az monitor scheduled-query create \
   -n ${PREFIX}-${ENV}-vwan-conn-failure \
   -g $RG \
@@ -56,16 +51,13 @@ AzureDiagnostics
 Step 5 — (Optional) Integrate with Microsoft Sentinel
 If your environment uses Sentinel, link your workspace and create an analytic rule template.
 
-bash
-Copy code
 az sentinel alert-rule create \
   --resource-group $RG \
   --workspace-name $LA_NAME \
   --rule-template-id "a6b3e79d-6e2a-4b10-9b2c-6d8b93b715f2" \
   --enabled true
 7.3 Validation
-bash
-Copy code
+
 # List all alert rules
 az monitor metrics alert list -g $RG -o table
 az monitor scheduled-query list -g $RG -o table
@@ -73,8 +65,7 @@ az monitor scheduled-query list -g $RG -o table
 # Simulate a trigger (optional)
 az monitor metrics alert test -n ${PREFIX}-${ENV}-fw-cpu-alert -g $RG
 7.4 Cleanup
-bash
-Copy code
+
 az monitor metrics alert delete -n ${PREFIX}-${ENV}-fw-cpu-alert -g $RG -y
 az monitor scheduled-query delete -n ${PREFIX}-${ENV}-vwan-conn-failure -g $RG -y
 az monitor action-group delete -n ${PREFIX}-${ENV}-alerts -g $RG -y
