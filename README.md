@@ -27,7 +27,7 @@ All content is written in **textbook + hands-on lab style** with **Mermaid diagr
 | 7 | [Alerting & Incident Response](labs/day07-alerting-incident-response.md) | Azure Monitor, Sentinel, Email/SMS alerts |
 | 8 | [Governance & Compliance (Private Link + Policy)](day8/README.md) | Private Endpoints, DNS zones, and Azure Policy remediation |
 | 9 | [Infrastructure as Code (Terraform Automation)](day9/README.md) | Terraform modules for vWAN, Firewall, Storage, and Policy |
-| 10 | Cost Management & Cleanup | *(later)* |
+| 10 | [Continuous Compliance & Governance Dashboard](day10/README.md) | Azure Monitor Workbook, Policy Insights, and Automation Pipeline |
 
 ---
 
