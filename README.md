@@ -25,7 +25,7 @@ All content is written in **textbook + hands-on lab style** with **Mermaid diagr
 | 5 | [Branch / Remote Connectivity (S2S + P2S)](labs/day05-branch-remote-connectivity.md) | Extend vWAN with Site-to-Site (VPN Site) and Point-to-Site (P2S) for remote users |
 | 6 | [Monitoring & Observability](labs/day06-monitoring-observability.md) | AzureMetrics validation, vWAN & Firewall telemetry |
 | 7 | [Alerting & Incident Response](labs/day07-alerting-incident-response.md) | Azure Monitor, Sentinel, Email/SMS alerts |
-| 8 | NVAs & 3rd-Party Firewalls | *(later)* |
+| 8 | [Governance & Compliance (Private Link + Policy)](day8/README.md) | Private Endpoints, DNS zones, and Azure Policy remediation |
 | 9 | Guardrails & Governance | *(later)* |
 | 10 | Cost Management & Cleanup | *(later)* |
 
