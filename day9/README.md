@@ -19,31 +19,53 @@
 
 **Outcome:**  
 You’ll be able to deploy the entire environment with:
-```bash
+
 terraform init
 terraform plan
 terraform apply -auto-approve
 
-## 2️ Architecture Diagram
+## 2️ A🧩 Day 9 – Terraform Deployment Sequence
+
 ```mermaid
-graph TD
-    subgraph Azure
-        A[Azure Virtual WAN] --> B[Secured Virtual Hub]
-        B --> C[Azure Firewall (Policy = Alert)]
-        B --> D[DeptA VNet]
-        B --> E[DeptB VNet]
-        B --> F[DeptC VNet]
-        D --> G[Private Endpoint (Blob)]
-        E --> G
-        F --> G
-        G --> H[Private DNS Zone<br/>privatelink.blob.core.windows.net]
-        H --> I[Storage Account<br/>public access = disabled]
-        C --> J[Azure Policy<br/>fwpolicy-threatintel]
-    end
-    style A fill:#f4f4f4,stroke:#333,stroke-width:1px
-    style C fill:#fdd,stroke:#333
-    style G fill:#cde,stroke:#333
-    style I fill:#cfc,stroke:#333
+sequenceDiagram
+    autonumber
+    participant Dev as You (Author)
+    participant TF as Terraform CLI
+    participant Prov as azurerm Provider
+    participant Azure as Azure Resource Manager
+    participant Net as vWAN + vHub
+    participant FP as Firewall Policy
+    participant FW as Azure Firewall (AZFW_Hub)
+    participant SA as Storage Account
+    participant PE as Private Endpoint (blob)
+    participant DNS as Private DNS Zone + Link
+    participant Policy as Azure Policy (Assignments/Exemptions)
+
+    Dev->>TF: terraform init
+    TF->>Prov: Load provider plugins (azurerm)
+    TF->>Azure: Backend/state ready
+
+    Dev->>TF: terraform plan (-var-file=dev.tfvars)
+    TF->>Prov: Build graph (resources + deps)
+    Prov->>Azure: Read current state (data sources)
+
+    Dev->>TF: terraform apply -auto-approve
+    TF->>Azure: Create RG (clab-dev-rg)
+    TF->>Azure: Create vWAN + vHub
+    TF->>Azure: Create Firewall Policy (threat_intel_mode=Alert)
+    TF->>Azure: Create Firewall (sku=AZFW_Hub, policy attached)
+    TF->>Azure: Create PE VNet + Subnet (private endpoint policies disabled)
+    TF->>Azure: Create Storage Account (PNA=Disabled, defaultAction=Deny, sharedKey=false)
+    TF->>Azure: Create Private Endpoint (blob) -> SA
+    TF->>Azure: Create Private DNS Zone + VNet Link
+    TF->>Azure: Policy Assignment (fwpolicy TI) + Exemption (PE VNet if needed)
+
+    Azure-->>TF: Apply complete (IDs, properties)
+    TF-->>Dev: Outputs (policy IDs, PE IP, etc.)
+
+    Note over Policy,Dev: Post-apply validation
+    Dev->>Policy: Trigger evaluation (implicit)
+    Policy-->>Dev: Compliance status: ✅
 ```
 
 ---
