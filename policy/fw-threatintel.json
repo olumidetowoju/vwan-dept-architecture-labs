@@ -1,0 +1,9 @@
+{
+  "if": {
+    "allOf": [
+      { "field": "type", "equals": "Microsoft.Network/azureFirewalls" },
+      { "not": { "field": "Microsoft.Network/azureFirewalls/threatIntelMode", "equals": "Alert" } }
+    ]
+  },
+  "then": { "effect": "audit" }
+}

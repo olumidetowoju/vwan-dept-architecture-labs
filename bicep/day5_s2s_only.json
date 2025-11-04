@@ -1,0 +1,102 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.38.33.27573",
+      "templateHash": "10272578594849081205"
+    }
+  },
+  "parameters": {
+    "vhubName": {
+      "type": "string",
+      "metadata": {
+        "description": "Existing Virtual Hub name (from Day 2), e.g., clab-dev-hub-eastus"
+      }
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Location (match your vHub region)"
+      }
+    },
+    "siteName": {
+      "type": "string",
+      "defaultValue": "clab-dev-site-branch1",
+      "metadata": {
+        "description": "Branch VPN site name"
+      }
+    },
+    "sitePublicIp": {
+      "type": "string",
+      "metadata": {
+        "description": "Branch device public IP (replace with your real IP)"
+      }
+    },
+    "siteAddressPrefixes": {
+      "type": "array",
+      "defaultValue": [
+        "192.168.10.0/24"
+      ],
+      "metadata": {
+        "description": "LAN prefixes reachable at the branch"
+      }
+    },
+    "s2sPsk": {
+      "type": "securestring",
+      "metadata": {
+        "description": "Pre-shared key for the S2S tunnel"
+      }
+    }
+  },
+  "variables": {
+    "vhubId": "[resourceId('Microsoft.Network/virtualHubs', parameters('vhubName'))]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Network/vpnSites",
+      "apiVersion": "2023-09-01",
+      "name": "[parameters('siteName')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "ipAddress": "[parameters('sitePublicIp')]",
+        "addressSpace": {
+          "addressPrefixes": "[parameters('siteAddressPrefixes')]"
+        }
+      },
+      "metadata": {
+        "description": "VPN Site (branch identity)"
+      }
+    },
+    {
+      "type": "Microsoft.Network/vpnGateways",
+      "apiVersion": "2023-09-01",
+      "name": "clab-dev-s2s-gw",
+      "location": "[parameters('location')]",
+      "properties": {
+        "virtualHub": {
+          "id": "[variables('vhubId')]"
+        }
+      },
+      "metadata": {
+        "description": "vHub S2S VPN Gateway (vWAN)"
+      }
+    }
+  ],
+  "outputs": {
+    "vhubResourceId": {
+      "type": "string",
+      "value": "[variables('vhubId')]"
+    },
+    "vpnSiteId": {
+      "type": "string",
+      "value": "[resourceId('Microsoft.Network/vpnSites', parameters('siteName'))]"
+    },
+    "s2sGatewayId": {
+      "type": "string",
+      "value": "[resourceId('Microsoft.Network/vpnGateways', 'clab-dev-s2s-gw')]"
+    }
+  }
+}
