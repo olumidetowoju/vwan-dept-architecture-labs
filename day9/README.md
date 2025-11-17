@@ -24,7 +24,7 @@ terraform init
 terraform plan
 terraform apply -auto-approve
 
-## 2️ A🧩 Day 9 – Terraform Deployment Sequence
+## 2️ 🧩 Day 9 – Terraform Deployment Sequence
 
 ```mermaid
 sequenceDiagram
@@ -70,7 +70,7 @@ sequenceDiagram
 
 ---
 
-🔒 Day 9 Focus: Everything in this diagram now becomes declarative Terraform.
+## 🔒 Day 9 Focus: Everything in this diagram now becomes declarative Terraform.
 
 ## 3️ Folder Layout
 
@@ -224,14 +224,15 @@ resource "azurerm_policy_exemption" "pevnet_exempt" {
   display_name         = "PE VNet is internal-only"
 }
 
-🔟 Apply & Validate
+## 🔟 Apply & Validate
 
 terraform init
 terraform validate
 terraform plan -var-file="dev.tfvars"
 terraform apply -var-file="dev.tfvars" -auto-approve
 
-✅ Expected Results
+## ✅ Expected Results
+
 vWAN, Hub, Firewall, and Storage all deployed automatically
 
 Private Endpoint + Private DNS linked correctly
@@ -240,6 +241,7 @@ Firewall Policy ThreatIntelMode = Alert (Policy-compliant)
 
 Zero manual CLI steps required
 
-🧭 Navigation
+## 🧭 Navigation
+
 Prev	Next
 ⬅️ Day 8 – Governance & Compliance	➡️ Day 10 – Continuous Compliance & Dashboard
