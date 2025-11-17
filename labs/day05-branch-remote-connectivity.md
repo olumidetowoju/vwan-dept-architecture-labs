@@ -32,7 +32,7 @@
 - Dept VNets A/B/C are connected and Day-4 policies are in place.
 - You’re using the same naming convention.
 
-🧩 Diagrams
+## 🧩 Diagrams
 S2S – High-Level Flow
 ```mermaid
 sequenceDiagram
@@ -65,23 +65,23 @@ sequenceDiagram
 
 ---
 
-💸 Cost Notes (Read This)
+## 💸 Cost Notes (Read This)
 
 Gateways incur cost while running. If you’re just learning, use Track A (Cost-Safe) first.
 
 When you do Track B (Full), run the Cleanup at the end of the day.
 
-🛣️ Track A – Cost-Safe (No Gateways, No Billing)
+## 🛣️ Track A – Cost-Safe (No Gateways, No Billing)
 
 Idea: Create all the metadata (parameters, templates) and run what-if to validate without deploying gateways.
 
 A1) S2S “Plan Only” (what-if)
-# Parameters for a hypothetical branch
+## Parameters for a hypothetical branch
 SITE1_NAME=${PREFIX}-${ENV}-site-branch1
 SITE1_PUBLIC_IP=203.0.113.10         # <-- placeholder (RFC5737). Replace with real on-prem public IP if you deploy for real.
 SITE1_CIDR=192.168.10.0/24
 
-# (No resources created here) – show your intended state in the hub:
+## (No resources created here) – show your intended state in the hub:
 cat > /tmp/day5-s2s-plan.json <<'JSON'
 {
   "siteName": "${SITE1_NAME}",
@@ -116,7 +116,7 @@ az deployment group what-if -g $RG -f ./bicep/day5_s2s_p2s_sample.bicep
 
 (We’ll add a real Bicep example later in the repo.)
 
-🚀 Track B – Full Hands-On (Creates Gateways)
+## 🚀 Track B – Full Hands-On (Creates Gateways)
 
 WARNING: This will create billable gateways. Keep scale-unit = 1 and delete them in Cleanup.
 
@@ -139,7 +139,6 @@ az network vpn-gateway create \
   --location $LOCATION \
   --vhub $VHUB \
   --scale-unit 1
-
 
 ⏳ This is long-running. You can check:
 
@@ -164,13 +163,13 @@ B2) Point-to-Site (P2S) – VPN Server Config → P2S Gateway → Client Profile
 We’ll use certificate auth (simple and self-contained). For production, consider Entra ID.
 
 1) Generate a root cert & client cert (Linux/WSL)
-# Root CA (self-signed)
+ Root CA (self-signed)
 openssl req -x509 -newkey rsa:4096 -keyout rootCA.key -out rootCA.crt -days 730 -nodes -subj "/CN=clab-dev-rootCA"
-# Client cert
+ Client cert
 openssl req -newkey rsa:2048 -keyout client.key -out client.csr -nodes -subj "/CN=clab-dev-client"
 openssl x509 -req -in client.csr -CA rootCA.crt -CAkey rootCA.key -CAcreateserial -out client.crt -days 365
 
-# Convert root cert to Base64 (no headers) for CLI
+ Convert root cert to Base64 (no headers) for CLI
 ROOT_B64=$(base64 -w0 rootCA.crt)
 
 2) Create VPN Server Configuration (certificate auth)
@@ -201,7 +200,7 @@ az network p2s-vpn-gateway create \
   --address-pool $P2S_POOL
 
 4) Download the client profile (ZIP) for Windows/macOS/Linux client
-# Get the download URL (paste into browser)
+ Get the download URL (paste into browser)
 az network p2s-vpn-gateway show \
   -g $RG -n $P2S_GW \
   --query "vpnClientConnectionHealth.vpnClientProfiles[0].profileUrl" -o tsv
@@ -210,22 +209,23 @@ az network p2s-vpn-gateway show \
 Import the profile into the native VPN client or Azure VPN Client app.
 When connecting, your client cert must be present (client.key, client.crt imported into OS keychain).
 
-🔎 Validation
+## 🔎 Validation
+
 # S2S
 az network vpn-site list -g $RG -o table
 az network vpn-gateway list -g $RG -o table
 az network vpn-gateway connection list -g $RG -o table
 
-# P2S
+## P2S
 az network vpn-server-config list -g $RG -o table
 az network p2s-vpn-gateway list -g $RG -o table
 
-🧹 Cleanup (Optional — Safe Free-Tier State)
+## 🧹 Cleanup (Optional — Safe Free-Tier State)
 
 When no branch device exists yet, remove high-cost items so you keep zero
 billing footprint.
 
-# ⚠️ Run only if you're done with Day 5 testing
+## ⚠️ Run only if you're done with Day 5 testing
 az network vpn-gateway delete -g $RG -n $S2S_GW -y
 az network vpn-site delete -g $RG -n $SITE1_NAME -y
 az network vpn-gateway connection delete -g $RG -n $S2S_CONN -y
@@ -236,22 +236,22 @@ Confirm deletion:
 az network vpn-gateway list -g $RG -o table
 az network vpn-site list -g $RG -o table
 
-# P2S
+## P2S
 az network p2s-vpn-gateway delete -g $RG -n $P2S_GW -y
 az network vpn-server-config delete -g $RG -n $VPNCFG -y
 
-# S2S
+## S2S
 az network vpn-gateway connection delete -g $RG -n $S2S_CONN -y
 az network vpn-gateway delete -g $RG -n $S2S_GW -y
 az network vpn-site delete -g $RG -n $SITE1_NAME -y
 
 
-🔁 Re-check:
+## 🔁 Re-check:
 
 az network vpn-gateway list -g $RG -o table
 az network p2s-vpn-gateway list -g $RG -o table
 
-📚 Troubleshooting Nuggets
+## 📚 Troubleshooting Nuggets
 
 AnotherOperationInProgress: Hubs/gateways lock during updates. Re-run after 20–60s.
 
@@ -259,7 +259,7 @@ PSK mismatch: Confirm the same key on both sides (Azure connection and your bran
 
 P2S auth: For cert-based auth, your root cert must be in the gateway config and the client cert installed locally.
 
-✅ End-of-Day Checklist
+## ✅ End-of-Day Checklist
 
  I understand S2S vs. P2S in Virtual WAN
 
@@ -269,7 +269,7 @@ P2S auth: For cert-based auth, your root cert must be in the gateway config and 
 
  I ran Cleanup if I deployed gateways
 
-🧭 Concept Recap (Analogies)
+## 🧭 Concept Recap (Analogies)
 
 Think of the Virtual WAN hub as an airport, and the vpnSite as a
 foreign terminal waiting for a flight connection.
@@ -296,11 +296,11 @@ until a real branch device is attached.
 | Connection Status | `az rest --method get --url "$CONN_URL" | python3 -c "import json,sys; d=json.load(sys.stdin); L=(d.get('properties',{}).get('vpnLinkConnections') or []); print('\n'.join([f\"{x.get('name')}\t{(x.get('properties') or {}).get('connectionStatus')}\" for x in L]))"` | **NotConnected** (expected) |
 
 ### 📊 Quick Summary (Compact Python View)
-```bash
+
 az rest --method get --url "$CONN_URL" \
 | python3 -c "import json,sys; data=json.load(sys.stdin); p=data.get('properties',{}); links=p.get('vpnLinkConnections') or []; print(json.dumps({'state':p.get('provisioningState'),'linkCount':len(links),'links':[{'name':l.get('name'),'status':(l.get('properties') or {}).get('connectionStatus'),'siteLinkId':(l.get('properties') or {}).get('vpnSiteLink',{}).get('id')} for l in links]}, indent=2))"
 
-🧩 Next Up — Day 6 Monitoring & Observability
+## 🧩 Next Up — Day 6 Monitoring & Observability
 
 We’ll enable metrics, flow logs, and Azure Monitor insights to visualize WAN
 traffic paths across departments.
