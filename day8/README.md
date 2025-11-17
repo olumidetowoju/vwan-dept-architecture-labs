@@ -38,7 +38,7 @@ sequenceDiagram
 
 ---
 
-## 1️ List Top Non-Compliant Policies
+**1️ List Top Non-Compliant Policies**
 
 RG="${RG:-clab-dev-rg}"
 
@@ -46,7 +46,7 @@ az policy state list --resource-group "$RG" \
   --query "[?complianceState=='NonCompliant'].policyDefinitionId" -o tsv \
   | sort | uniq -c | sort -nr | head -8
 
-## 2️ Show Policy Names & Effects
+**2️ Show Policy Names & Effects**
 
 API="2021-06-01"
 for ID in $(az policy state list --resource-group "$RG" \
@@ -58,7 +58,7 @@ for ID in $(az policy state list --resource-group "$RG" \
   printf "%-90s  %-8s  %s\n" "$ID" "$EFFECT" "$NAME"
 done | sort
 
-## 3️ Disable Shared Key Access
+**3️ Disable Shared Key Access**
 
 for SA in $(az policy state list --resource-group "$RG" \
   --query "[?contains(resourceType,'Microsoft.Storage/storageAccounts') && complianceState=='NonCompliant'].resourceId" -o tsv | sort -u); do
@@ -66,7 +66,8 @@ for SA in $(az policy state list --resource-group "$RG" \
   SA_RG=$(az storage account show -n "$SA_NAME" --query resourceGroup -o tsv)
   az storage account update -g "$SA_RG" -n "$SA_NAME" --allow-shared-key-access false
 done
-## 4️ Restrict Network Access (VNet Rules)
+
+**4️ Restrict Network Access (VNet Rules)**
 
 for SA in $(az policy state list --resource-group "$RG" \
   --query "[?contains(resourceType,'Microsoft.Storage/storageAccounts') && complianceState=='NonCompliant'].resourceId" -o tsv | sort -u); do
@@ -76,7 +77,7 @@ for SA in $(az policy state list --resource-group "$RG" \
   az storage account update -g "$SA_RG" -n "$SA_NAME" --default-action Deny
 done
 
-## 5️ Private Link (PE + DNS) – One Account at a Time
+**5️ Private Link (PE + DNS) – One Account at a Time**
 
 RG_NET="clab-dev-rg"; LOC="eastus"; PE_VNET="clab-pe-vnet"; PE_SUBNET="pe-subnet"
 az network vnet create -g "$RG_NET" -n "$PE_VNET" --location "$LOC" \
@@ -113,13 +114,13 @@ EXISTING=$(az network private-dns record-set a show -g "$ZRG" -z "privatelink.bl
 echo "$EXISTING" | grep -qx "$PE_IP" || az network private-dns record-set a add-record \
   -g "$ZRG" -z "privatelink.blob.core.windows.net" -n "$SA_NAME" -a "$PE_IP"
 
-## 6️ Firewall Threat Intelligence (Secured vHub)
+**6️ Firewall Threat Intelligence (Secured vHub)**
 
 POLICY_ID=$(az network firewall show -g clab-dev-rg -n clab-dev-fw \
   --query "firewallPolicy.id" -o tsv)
 az network firewall policy update --ids "$POLICY_ID" --threat-intel-mode Alert
 
-## 7️ Exemptions for PE VNet (Optional)
+**7️ Exemptions for PE VNet (Optional)**
 
 ASSIGN_ID="/subscriptions/56d9a9d0-65a3-4aea-9957-ff103f641f9c/providers/Microsoft.Authorization/policyAssignments/securitycenterbuiltin"
 SCOPE="/subscriptions/56d9a9d0-65a3-4aea-9957-ff103f641f9c/resourceGroups/clab-dev-rg/providers/Microsoft.Network/virtualNetworks/clab-pe-vnet"
@@ -134,7 +135,7 @@ az policy exemption create --name "exempt-pevnet-ddos" \
   --exemption-category Waiver \
   --display-name "PE VNet is not Internet-facing; DDoS Standard not applicable"
 
-## 8️ Re-Check Compliance
+**8️ Re-Check Compliance**
 
 az policy state summarize --resource-group "$RG" \
   --query "{nonCompliant:summaryResults[0].nonCompliantResources, compliant:summaryResults[0].compliantResources}" -o table
@@ -142,7 +143,7 @@ az policy state summarize --resource-group "$RG" \
 az policy state list --resource-group "$RG" \
   --query "[?complianceState=='NonCompliant'].[policyDefinitionId,resourceId,complianceReasonCode]" -o table
 
-## 9️ Troubleshooting
+**9️ Troubleshooting**
 
 ResourceGroupNotFound → Verify RG with az group list -o table
 
@@ -152,7 +153,8 @@ az network private-dns record-set a show -g "$ZRG" -z "privatelink.blob.core.win
   --query "arecords[].ipv4Address" -o tsv
 AZFW_Hub TI mode → Set on Firewall Policy, not azureFirewalls
 
-✅ Result:
+## ✅ Result:
+
 All storage accounts use Private Link, network access is restricted, and Secured vHub Firewall Policy is compliant with Azure Policy.
 
 Proceed to ➡ Day 9 – Terraform Automation when ready.
