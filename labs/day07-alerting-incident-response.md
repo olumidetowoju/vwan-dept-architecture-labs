@@ -9,7 +9,8 @@ You will validate that critical network or security events trigger notifications
 
 ## 7.2 Lab Steps
 
-### **Step 1 — Define environment variables**
+**Step 1 — Define environment variables**
+
 RG=clab-dev-rg
 LA_NAME=clab-dev-logs
 PREFIX=clab
@@ -17,7 +18,8 @@ ENV=dev
 LOCATION=eastus
 SUB_ID=$(az account show --query id -o tsv)
 
-### **Step 2 — Create an Action Group
+**Step 2 — Create an Action Group**
+
 This action group will notify your email or SMS when alerts trigger.
 
 az monitor action-group create \
@@ -26,7 +28,7 @@ az monitor action-group create \
   --action email AdminAlerts you@example.com \
   --short-name AGAlerts
 
-### **Step 3 — Create example metric alert (Firewall metrics)
+**Step 3 — Create example metric alert (Firewall metrics)**
 
 az monitor metrics alert create \
   -n ${PREFIX}-${ENV}-fw-cpu-alert \
@@ -36,7 +38,7 @@ az monitor metrics alert create \
   --description "High Azure Firewall CPU utilization" \
   --action-group ${PREFIX}-${ENV}-alerts
 
-### **Step 4 — Create example log alert (from Log Analytics workspace)
+**Step 4 — Create example log alert (from Log Analytics workspace)**
 
 az monitor scheduled-query create \
   -n ${PREFIX}-${ENV}-vwan-conn-failure \
@@ -52,7 +54,8 @@ AzureDiagnostics
 " \
   --window-size 5m --evaluation-frequency 5m
 
-### **Step 5 — (Optional) Integrate with Microsoft Sentinel
+**Step 5 — (Optional) Integrate with Microsoft Sentinel**
+
 If your environment uses Sentinel, link your workspace and create an analytic rule template.
 
 az sentinel alert-rule create \
@@ -63,11 +66,13 @@ az sentinel alert-rule create \
 
 ## 7.3 Validation
 
-# List all alert rules
+**List all alert rules**
+
 az monitor metrics alert list -g $RG -o table
 az monitor scheduled-query list -g $RG -o table
 
-# Simulate a trigger (optional)
+**Simulate a trigger (optional)**
+
 az monitor metrics alert test -n ${PREFIX}-${ENV}-fw-cpu-alert -g $RG
 
 ## 7.4 Cleanup
@@ -95,7 +100,8 @@ sequenceDiagram
 
 ---
 
-✅ Deliverables
+## ✅ Deliverables
+
 Alert rules active in Azure Monitor
 
 Action group notifications verified
@@ -106,18 +112,18 @@ Optional Sentinel rule created
 
 ## 7.6 Validation – live alerts
 
-### Verify the alerts exist
+**Verify the alerts exist**
 
 az monitor metrics alert list -g "$RG" -o table
 Force a quick trigger (DataProcessed)
 We’ll create a temporary low-threshold alert that fires as soon as any traffic passes the firewall, then remove it after verification.
 
-# IDs
+## IDs
 SUB_ID=$(az account show --query id -o tsv)
 FW_ID=$(az network firewall show -g "$RG" -n "clab-dev-fw" --query id -o tsv)
 AG_ID=$(az monitor action-group show -g "$RG" -n "clab-dev-alerts" --query id -o tsv)
 
-# Temp alert: fires if any bytes are processed in 5 minutes
+## Temp alert: fires if any bytes are processed in 5 minutes
 az monitor metrics alert create \
   -n ${PREFIX}-${ENV}-fw-throughput-test \
   -g "$RG" \
@@ -128,18 +134,18 @@ az monitor metrics alert create \
   --description "TEMP: DataProcessed > 1 byte in 5m" \
   --action "$AG_ID"
 
-# Generate traffic (from a VM behind the firewall)
-# e.g., curl some sites a few times
-#   curl -I https://www.microsoft.com
-#   curl -I https://example.com
+## Generate traffic (from a VM behind the firewall)
+## e.g., curl some sites a few times
+##   curl -I https://www.microsoft.com
+##   curl -I https://example.com
 
-# See alert objects
+## See alert objects
 az monitor metrics alert list -g "$RG" -o table
 Notifications should go to the clab-dev-alerts action group targets you set earlier.
 
 Inspect recent alert activity (Activity Log)
 
-# Show recent Administrative events related to alerts in the RG
+## Show recent Administrative events related to alerts in the RG
 az monitor activity-log list \
   --resource-group "$RG" \
   --status Succeeded \
