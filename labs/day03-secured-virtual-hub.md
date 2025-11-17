@@ -20,7 +20,7 @@ Today you will:
 
 ---
 
-🧭 Sequence Diagram – Secured Hub Activation
+## 🧭 Sequence Diagram – Secured Hub Activation
 ```mermaid
 sequenceDiagram
     participant You as You (Olumide)
@@ -41,22 +41,22 @@ sequenceDiagram
 
 ---
 
-🧱 Step 1 – Create or Confirm Resource Group
+## 🧱 Step 1 – Create or Confirm Resource Group
 
 If you cleaned up after Day 2, recreate the base group:
 
 az group create -n $RG -l $LOCATION
 
-🌐 Step 2 – Recreate or Confirm Virtual WAN + Hub
+## 🌐 Step 2 – Recreate or Confirm Virtual WAN + Hub
 
 (If still exists, skip these; otherwise, rebuild)
 
 az network vwan create -g $RG -n $VWAN --type Standard
 az network vhub create -g $RG -n $VHUB --vwan $VWAN --address-prefix 10.0.0.0/23 -l $LOCATION
 
-🧩 Step 3 – Create the Firewall Policy
-az network firewall policy create -g $RG -n $POLICY -l $LOCATION
+## 🧩 Step 3 – Create the Firewall Policy
 
+az network firewall policy create -g $RG -n $POLICY -l $LOCATION
 
 Optional – add a baseline rule collection to allow HTTPS out:
 
@@ -88,7 +88,8 @@ az network firewall policy rule-collection-group create \
     }
   ]'
 
-🔥 Step 4 – Deploy Azure Firewall (Secured Hub Mode)
+## 🔥 Step 4 – Deploy Azure Firewall (Secured Hub Mode)
+
 az network firewall create -g $RG -n $FW -l $LOCATION --tier Standard
 
 
@@ -103,7 +104,7 @@ Then link your policy to the firewall:
 
 az network firewall policy association create -g $RG -f $FW --policy $POLICY
 
-🛡 Step 5 – Validate Secured Hub Status
+## 🛡 Step 5 – Validate Secured Hub Status
 
 Run:
 
@@ -120,7 +121,7 @@ Also verify:
 az network firewall show -g $RG -n $FW -o table
 az network firewall policy show -g $RG -n $POLICY -o table
 
-🧠 What Just Happened?
+## 🧠 What Just Happened?
 
 The Virtual Hub is now a secured hub, meaning:
 
@@ -132,7 +133,7 @@ All VNets attached to this Hub gain secure egress by default.
 
 Think of this as installing airport security at your main terminal.
 
-🧪 Optional Verification (Portal)
+## 🧪 Optional Verification (Portal)
 
 In the Azure Portal:
 
@@ -142,22 +143,25 @@ You’ll see “Secured Virtual Hub” enabled with Azure Firewall as the provid
 
 The “Routing Intent” option becomes available — we’ll configure that in Day 4.
 
-💰 Cost Awareness
+## 💰 Cost Awareness
 
 Azure Firewall incurs hourly cost even when idle.
 Always delete the RG when done to avoid charges.
 
-🧹 Cleanup (Recommended)
+## 🧹 Cleanup (Recommended)
 az group delete -n $RG --yes --no-wait
 
-✅ End-of-Day 3 Checklist
-Step	Description	Status
-Firewall Policy Created	Rule framework exists	✅
-Azure Firewall Deployed	In Secured Hub	✅
-Policy Associated	Connected successfully	✅
-Hub Secured	Verified AzureFirewall	✅
-Cleanup Completed	Avoided extra cost	✅
-📘 Next – Day 4: Routing Intent & Department Profiles
+## ✅ End-of-Day 3 Checklist
+
+| Step | Description | Status |
+|------|-------------|--------|
+| Firewall Policy Created | Rule framework exists | ✅ |
+| Azure Firewall Deployed | In Secured Hub | ✅ |
+| Policy Associated | Connected successfully | ✅ |
+| Hub Secured | Verified AzureFirewall | ✅ |
+| Cleanup Completed | Avoided extra cost | ✅ |
+
+## 📘 Next – Day 4: Routing Intent & Department Profiles
 
 In the next lab you will:
 
