@@ -37,22 +37,18 @@ sequenceDiagram
 
 ---
 
-⚙️ Setup Environment
+## ⚙️ Setup Environment
+
 1️⃣ Confirm Subscription
-bash
-Copy code
 az account show -o table
 ✅ Ensure subscription ID = 56d9a9d0-65a3-4aea-9957-ff103f641f9c.
 
 2️⃣ Register Required Providers
-bash
-Copy code
 az provider register --namespace Microsoft.Network
 az provider register --namespace Microsoft.Firewall
 az provider register --namespace Microsoft.VirtualWAN
+
 3️⃣ Define Naming Variables
-bash
-Copy code
 LOCATION=eastus
 PREFIX=clab
 ENV=dev
@@ -60,19 +56,18 @@ SUFFIX=001
 RG=${PREFIX}-${ENV}-rg
 VWAN=${PREFIX}-${ENV}-vwan
 VHUB=${PREFIX}-${ENV}-hub-${LOCATION}
+
 4️⃣ Create Resource Group
-bash
-Copy code
 az group create -n $RG -l $LOCATION
 ✅ Output should show provisioningState = Succeeded.
 
-🧩 Department Profiles
+## 🧩 Department Profiles
 Department	Focus	Internet Traffic	Private Traffic
 Dept A – Strict	Maximum Security	via Firewall	via Firewall
 Dept B – Balanced	Mix of Speed & Safety	via Firewall	Direct
 Dept C – Performance	Low Latency	via Firewall	Direct
 
-🧭 Diagram – Current State
+## 🧭 Diagram – Current State
 ```mermaid
 sequenceDiagram
     participant CLI as Azure CLI / Portal
@@ -86,9 +81,8 @@ sequenceDiagram
 
 ---
 
-✅ Verify
-bash
-Copy code
+## ✅ Verify
+
 az group list -o table
 ``>
 You should see `clab-dev-rg`.
@@ -101,9 +95,11 @@ All operations today are **Free**. No compute or network billing.
 ---
 
 ## 🧹 Cleanup (Optional)
-```bash
+
 az group delete -n $RG --yes --no-wait
-🧭 Next Preview
+
+## 🧭 Next Preview
+
 Tomorrow (Day 2) you’ll:
 
 Create the Virtual WAN (“airline alliance”)
