@@ -22,7 +22,7 @@ Think of Azure Virtual WAN as a **global highway system** and the Virtual Hub as
 
 ---
 
-🧭 Sequence (What happened today)
+## 🧭 Sequence (What happened today)
 ```mermaid
 sequenceDiagram
     participant You as You (Olumide)
@@ -47,22 +47,19 @@ sequenceDiagram
 
 ---
 
-🧱 Step 1 – Create Resource Group
-bash
-Copy code
+## 🧱 Step 1 – Create Resource Group
+
 az group create -n $RG -l $LOCATION
 ✅ Expected: "provisioningState": "Succeeded"
 
-🌐 Step 2 – Create Virtual WAN
-bash
-Copy code
+## 🌐 Step 2 – Create Virtual WAN
+
 az network vwan create -g $RG -n $VWAN --type Standard
 This initializes the global “airline alliance.”
 Standard type enables inter-region connectivity and security options used later.
 
-🛞 Step 3 – Create Virtual Hub
-bash
-Copy code
+## 🛞 Step 3 – Create Virtual Hub
+
 az network vhub create \
   -g $RG -n $VHUB \
   --vwan $VWAN \
@@ -70,9 +67,8 @@ az network vhub create \
   --location $LOCATION
 Hubs without gateways deploy in about 5–7 min.
 
-🧩 Step 4 – Create Dept VNets
-bash
-Copy code
+## 🧩 Step 4 – Create Dept VNets
+
 az network vnet create -g $RG -n $VNETA -l $LOCATION --address-prefixes $ADDR_VNETA
 az network vnet create -g $RG -n $VNETB -l $LOCATION --address-prefixes $ADDR_VNETB
 az network vnet create -g $RG -n $VNETC -l $LOCATION --address-prefixes $ADDR_VNETC
@@ -81,11 +77,10 @@ Dept A	10.10.0.0/16	Strict Security (will route all via FW)
 Dept B	10.20.0.0/16	Balanced Dept
 Dept C	10.30.0.0/16	High-Performance Dept
 
-🔗 Step 5 – Connect VNets to Hub
+## 🔗 Step 5 – Connect VNets to Hub
+
 Grab each VNet’s resource ID and connect:
 
-bash
-Copy code
 VNETA_ID=$(az network vnet show -g $RG -n $VNETA --query id -o tsv)
 VNETB_ID=$(az network vnet show -g $RG -n $VNETB --query id -o tsv)
 VNETC_ID=$(az network vnet show -g $RG -n $VNETC --query id -o tsv)
@@ -93,11 +88,11 @@ VNETC_ID=$(az network vnet show -g $RG -n $VNETC --query id -o tsv)
 az network vhub connection create -g $RG --vhub-name $VHUB -n conn-${VNETA} --remote-vnet $VNETA_ID
 az network vhub connection create -g $RG --vhub-name $VHUB -n conn-${VNETB} --remote-vnet $VNETB_ID
 az network vhub connection create -g $RG --vhub-name $VHUB -n conn-${VNETC} --remote-vnet $VNETC_ID
+
 🕐 If the hub isn’t ready yet, rerun after 2–3 minutes.
 
-🧭 Step 6 – Validate Deployment
-bash
-Copy code
+# 🧭 Step 6 – Validate Deployment
+
 az network vhub show -g $RG -n $VHUB -o table
 az network vhub connection list -g $RG --vhub-name $VHUB -o table
 az network vnet list -g $RG -o table
@@ -109,13 +104,14 @@ Expected findings:
 
 3 VNets listed
 
-🧠 Troubleshooting Tips
+## 🧠 Troubleshooting Tips
+
 Symptom	Cause	Fix
 “Hub not found”	Hub still provisioning	Wait 2–3 min then re-run connection command
 “Address prefix conflict”	Overlapping CIDRs	Adjust each Dept VNet prefix to unique ranges
 “Insufficient permissions”	Not logged in or wrong subscription	Run az login and az account set --subscription …
 
-🧩 Conceptual Recap
+## 🧩 Conceptual Recap
 
 You’ve created your central transit hub.
 
@@ -125,21 +121,24 @@ No security enforcement yet — all traffic is open, just routed.
 
 In Day 3, we’ll secure the hub with Azure Firewall Manager to control ingress / egress.
 
-🧹 Cleanup (Optional)
+## 🧹 Cleanup (Optional)
 
 To save credits:
 
 az group delete -n $RG --yes --no-wait
 
-✅ End-of-Day 2 Checklist
-Step	Description	Status
-Virtual WAN Created	Global backbone in place	✅
-Virtual Hub Created	Regional router live	✅
-Dept VNets Created	A/B/C deployed	✅
-Connections Complete	3 VHub connections	✅
-Validated	Hub + VNets visible in list	✅
-Cleaned Up	Resources removed after test	✅
-🚀 Next Up — Day 3 Secured Virtual Hub
+## ✅ End-of-Day 2 Checklist
+
+| Step | Description | Status |
+|------|-------------|--------|
+| Virtual WAN Created | Global backbone in place | ✅ |
+| Virtual Hub Created | Regional router live | ✅ |
+| Dept VNets Created | A/B/C deployed | ✅ |
+| Connections Complete | 3 VHub connections | ✅ |
+| Validated | Hub + VNets visible in list | ✅ |
+| Cleaned Up | Resources removed after test | ✅ |
+
+## 🚀 Next Up — Day 3 Secured Virtual Hub
 
 Tomorrow we’ll:
 
