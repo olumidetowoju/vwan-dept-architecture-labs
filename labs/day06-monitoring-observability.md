@@ -25,7 +25,7 @@ By the end of this lab you will:
 | **Workbooks / Log Analytics** | Visual dashboards for trend visualization and troubleshooting |
 
 ---
-🖼️ Diagram – Monitoring Flow
+## 🖼️ Diagram – Monitoring Flow
 ```mermaid
 sequenceDiagram
     participant DeptA as Dept A VNet
@@ -47,7 +47,7 @@ sequenceDiagram
 
 ---
 
-🧩 2️⃣ Enable Flow Logs v2 on Dept VNets
+## 🧩 2️⃣ Enable Flow Logs v2 on Dept VNets
 
 Attach diagnostic settings at each subnet level.
 
@@ -68,7 +68,7 @@ Verify Flow Logs:
 
 az network watcher flow-log list --location $LOCATION -o table
 
-🧩 3️⃣ Configure Connection Monitor
+## 🧩 3️⃣ Configure Connection Monitor
 
 Use Connection Monitor v2 to validate inter-VNet and on-prem reachability.
 
@@ -92,7 +92,7 @@ Show recent results:
 az network watcher connection-monitor query \
   --name deptA-to-deptB -g $RG --output table
 
-🧩 4️⃣ Visualize Metrics in Workbooks
+## 🧩 4️⃣ Visualize Metrics in Workbooks
 
 In the Azure Portal:
 
@@ -111,7 +111,7 @@ AzureDiagnostics
 
 Save as a custom workbook: vWAN Traffic Flow Overview
 
-🧹 Cleanup (Optional)
+## 🧹 Cleanup (Optional)
 
 To stop all diagnostics and minimize costs:
 
@@ -119,13 +119,13 @@ To stop all diagnostics and minimize costs:
 
 Why this matters (analogy): Think of AzureMetrics like a heart-rate monitor for each network device. Even if deep packet logs aren’t in yet, you can still see whether the “heart” (tunnels, firewall) is pumping and how hard.
 
-📈 What we’ll validate
+## 📈 What we’ll validate
 
 vWAN VPN Gateway tunnel activity (bytes/packets, drops).
 
 Azure Firewall throughput and rule hits.
 
-🧠 Diagram — “How metrics move”
+## 🧠 Diagram — “How metrics move”
 ```mermaid
 sequenceDiagram
     participant VM as Dept VMs
@@ -144,8 +144,9 @@ sequenceDiagram
 
 ---
 
-🔎 Discover which resource IDs are in AzureMetrics
-# Shows the resources that have written metrics in last 24h
+## 🔎 Discover which resource IDs are in AzureMetrics
+
+Shows the resources that have written metrics in last 24h
 az monitor log-analytics query \
   --workspace "$LA_CUST" \
   --analytics-query "
@@ -164,7 +165,7 @@ Copy the full ResourceId for your VPN Gateway and Firewall from the output.
 
 /subscriptions/56d9a9d0-65a3-4aea-9957-ff103f641f9c/resourceGroups/clab-dev-rg/providers/Microsoft.Network/azureFirewalls/clab-dev-fw
 
-🧪 VPN Gateway — tunnel throughput (bytes)
+## 🧪 VPN Gateway — tunnel throughput (bytes)
 
 Metrics include TunnelIngressBytes and TunnelEgressBytes (per Microsoft docs). Use 5-minute bins to smooth spikes. 
 Microsoft Learn
@@ -184,7 +185,7 @@ AzureMetrics
 | sort by TimeGenerated asc" \
   -o table
 
-🧪 VPN Gateway — packet drops (health signal)
+## 🧪 VPN Gateway — packet drops (health signal)
 
 Drop metrics: TunnelIngressPacketDropCount and TunnelEgressPacketDropCount. Any > 0 deserves attention. 
 Microsoft Learn
@@ -202,7 +203,7 @@ AzureMetrics
 | sort by TimeGenerated asc" \
   -o table
 
-🔥 Azure Firewall — data processed & rule hits
+## 🔥 Azure Firewall — data processed & rule hits
 
 Useful metrics: DataProcessed, ApplicationRuleHit, NetworkRuleHit, FirewallHealth. 
 Microsoft Learn
@@ -210,7 +211,7 @@ Microsoft Learn
 
 FW_ID="/subscriptions/56d9a9d0-65a3-4aea-9957-ff103f641f9c/resourceGroups/clab-dev-rg/providers/Microsoft.Network/azureFirewalls/clab-dev-fw"
 
-# Throughput over time
+## Throughput over time
 az monitor log-analytics query \
   --workspace "$LA_CUST" \
   --analytics-query "
@@ -223,7 +224,7 @@ AzureMetrics
 | sort by TimeGenerated asc" \
   -o table
 
-# Rule hits summary
+## Rule hits summary
 az monitor log-analytics query \
   --workspace "$LA_CUST" \
   --analytics-query "
@@ -236,7 +237,7 @@ AzureMetrics
 | sort by TimeGenerated asc" \
   -o table
 
-# Health signal (0–100%)
+## Health signal (0–100%)
 az monitor log-analytics query \
   --workspace "$LA_CUST" \
   --analytics-query "
@@ -249,7 +250,7 @@ AzureMetrics
 | sort by TimeGenerated asc" \
   -o table
 
-🧭 Interpretation cheatsheet
+## 🧭 Interpretation cheatsheet
 
 TunnelIngress/EgressBytes rising during test traffic = tunnels are alive.
 
@@ -262,7 +263,7 @@ Microsoft Learn
 RuleHit spikes = your policy is actively filtering (expected with Day 3/4 rules). 
 Microsoft Learn
 
-🧩 If you don’t see rows yet
+## 🧩 If you don’t see rows yet
 
 Re-run the ResourceId inventory query above to confirm the IDs.
 
