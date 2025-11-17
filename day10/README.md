@@ -126,14 +126,15 @@ az policy state summarize -g clab-dev-rg -o table
 az monitor workbook delete -g clab-dev-rg -n "vWAN-Dept-Compliance"
 terraform destroy -auto-approve
 
-✅ Expected Result
+## ✅ Expected Result
+
 Visual dashboard of compliance per resource group
 
 Automated daily plan + policy summary via GitHub Actions
 
 Zero manual drift checks needed
 
-🧭 Navigation
+## 🧭 Navigation
 
 Prev	Next
 ⬅️ Day 9 – Infrastructure as Code (Terraform Automation)	🏁 End of Course
