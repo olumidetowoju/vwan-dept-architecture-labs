@@ -25,7 +25,7 @@ Background on routing intent & policies in Virtual WAN: overview/how-to articles
 
 ---
 
-🧭 Sequence – Department Behaviors
+## 🧭 Sequence – Department Behaviors
 ```mermaid
 sequenceDiagram
     participant A as Dept A (Strict)
@@ -58,7 +58,7 @@ sequenceDiagram
 
 ---
 
-🛠️ Step 1 — Create Routing Intent (Hub-level)
+## 🛠️ Step 1 — Create Routing Intent (Hub-level)
 
 One intent with two routing policies pointing to the hub firewall.
 
@@ -80,7 +80,7 @@ Check:
 
 az network vhub routing-intent show -g $RG --vhub $VHUB -n ${PREFIX}-${ENV}-ri -o jsonc
 
-🧩 Step 2 — Internet behavior per department (connection-level)
+## 🧩 Step 2 — Internet behavior per department (connection-level)
 
 Dept A – Strict (Internet via Firewall): (default is enabled but we enforce for clarity)
 
@@ -100,7 +100,7 @@ az network vhub connection update -g $RG --vhub-name $VHUB -n $CONNC --internet-
 --internet-security is the per-connection switch for secured Internet egress. 
 Microsoft Learn
 
-🧭 Step 3 — Private traffic behavior per department
+## 🧭 Step 3 — Private traffic behavior per department
 
 Because our routing intent currently sends PrivateTraffic to the firewall for all connections, we’ll override this for departments that should remain direct using a custom vHub route table and associating it only where needed.
 
@@ -114,16 +114,16 @@ Create a custom route table with no “to FW” overrides and associate it to De
 
 (Route Table v3 without extra routes simply uses the hub’s default/private propagation → direct paths.)
 
-# Create an empty custom route table (no routes added)
+## Create an empty custom route table (no routes added)
 az network vhub route-table create \
   -g $RG \
   --vhub-name $VHUB \
   -n rt-deptB
 
-# Grab its id
+## Grab its id
 RTB_ID=$(az network vhub route-table show -g $RG --vhub-name $VHUB -n rt-deptB --query id -o tsv)
 
-# Associate it to Dept B connection
+## Associate it to Dept B connection
 az network vhub connection update \
   -g $RG --vhub-name $VHUB -n $CONNB \
   --associated-route-table $RTB_ID
@@ -145,15 +145,15 @@ az network vhub connection update \
 If you later want Dept A private to FW in an explicit way, you can create a route table that adds routes with Firewall as next hop (ResourceId) for the other departments’ address spaces and associate that table to Dept A. Example route add shown in Step 4. 
 Microsoft Learn
 
-➕ Step 4 — (Optional) Explicit “Private via Firewall” table for Dept A
+## ➕ Step 4 — (Optional) Explicit “Private via Firewall” table for Dept A
 
 If you want to enforce that Dept A reaches B/C only through the FW (instead of relying solely on Routing Intent), add explicit routes:
 
-# Create route table for Dept A
+## Create route table for Dept A
 az network vhub route-table create \
   -g $RG --vhub-name $VHUB -n rt-deptA
 
-# Add routes to B and C via Firewall as next hop
+## Add routes to B and C via Firewall as next hop
 az network vhub route-table route add \
   -g $RG --vhub-name $VHUB -n rt-deptA \
   --destination-type CIDR \
@@ -161,7 +161,7 @@ az network vhub route-table route add \
   --next-hop-type ResourceId \
   --next-hop $FW_ID
 
-# Associate it to Dept A
+## Associate it to Dept A
 RTA_ID=$(az network vhub route-table show -g $RG --vhub-name $VHUB -n rt-deptA --query id -o tsv)
 
 az network vhub connection update \
@@ -172,16 +172,17 @@ az network vhub connection update \
 Route Table v3 next hop to firewall example in docs: vhub route-table route add with --next-hop-type ResourceId pointing at the Azure Firewall resourceId. 
 Microsoft Learn
 
-✅ Validation
-# 1) Show routing intent
+## ✅ Validation
+
+## 1) Show routing intent
 az network vhub routing-intent show -g $RG --vhub $VHUB -n ${PREFIX}-${ENV}-ri -o jsonc
 
-# 2) Check each connection for internet-security and associated route-table
+## 2) Check each connection for internet-security and associated route-table
 az network vhub connection show -g $RG --vhub-name $VHUB -n $CONNA -o jsonc | jq '.routingConfiguration.internetSecurity, .routingConfiguration.associatedRouteTable.id'
 az network vhub connection show -g $RG --vhub-name $VHUB -n $CONNB -o jsonc | jq '.routingConfiguration.internetSecurity, .routingConfiguration.associatedRouteTable.id'
 az network vhub connection show -g $RG --vhub-name $VHUB -n $CONNC -o jsonc | jq '.routingConfiguration.internetSecurity, .routingConfiguration.associatedRouteTable.id'
 
-# 3) List route tables for the hub
+## 3) List route tables for the hub
 az network vhub route-table list -g $RG --vhub-name $VHUB -o table
 
 
@@ -196,32 +197,33 @@ Dept B: internetSecurity = true, associated route table = rt-deptB
 
 Dept C: internetSecurity = false, associated route table = rt-deptC
 
-🧹 Cleanup (optional)
+## 🧹 Cleanup (optional)
 az group delete -n $RG --yes --no-wait
 
-✅ End-of-Day 4 Checklist
-Item	Result
-Routing Intent with Internet+Private → Firewall	✅
-Dept A (Strict): Internet via FW, Private via FW	✅
-Dept B (Balanced): Internet via FW, Private direct	✅
-Dept C (Performance): Internet direct, Private direct	✅
-Validation outputs as expected	✅
+## ✅ End-of-Day 4 Checklist
+
+| Configuration | Result |
+|---------------|--------|
+| Routing Intent with Internet + Private → Firewall | ✅ |
+| Dept A - Strict: Internet via FW, Private via FW | ✅ |
+| Dept B - Balanced: Internet via FW, Private direct | ✅ |
+| Dept C - Performance: Internet direct, Private direct | ✅ |
+| Validation outputs as expected | ✅ |
 
 ## ✅ Day 4 – Final Validation Snapshot
 
-```bash
-# Internet flags + associated tables (expect A→rt-deptA, B→rt-deptB, C→rt-deptC)
+## Internet flags + associated tables (expect A→rt-deptA, B→rt-deptB, C→rt-deptC)
 az network vhub connection list -g $RG --vhub-name $VHUB \
   --query "[].{name:name, internet:enableInternetSecurity, assocRT:routingConfiguration.associated_route_table.id}" -o table
 
-# Route tables in hub
+## Route tables in hub
 az network vhub route-table list -g $RG --vhub-name $VHUB -o table
 
-# Dept A table contents (expect exactly two CIDRs)
+## Dept A table contents (expect exactly two CIDRs)
 az network vhub route-table show -g $RG --vhub-name $VHUB -n rt-deptA \
   --query "routes[].{name:name,dests:destinations}" -o table
 
-🧰 Gotchas & Fixes (vHub Route Table v3)
+## 🧰 Gotchas & Fixes (vHub Route Table v3)
 
 Remove routes by index (not by name):
 az network vhub route-table route remove ... --index <n>
